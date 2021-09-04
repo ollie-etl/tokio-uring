@@ -1,4 +1,5 @@
-use crate::buf::{IoBuf, IoBufMut};
+use crate::buf::fixed::FixedBuf;
+use crate::buf::{IoBuf, IoBufMut, Slice};
 use crate::driver::{Op, SharedFd};
 use crate::fs::OpenOptions;
 
@@ -169,6 +170,18 @@ impl File {
         // Submit the read operation
         let op = Op::read_at(&self.fd, buf, pos).unwrap();
         op.read().await
+    }
+
+    /// Like [read_at](Self::read_at), but using a pre-mapped buffer
+    /// registered with [BufRegistry](crate::buf::fixed::BufRegistry).
+    pub async fn read_fixed_at(
+        &self,
+        buf: Slice<FixedBuf>,
+        pos: u64,
+    ) -> crate::BufResult<usize, Slice<FixedBuf>> {
+        // Submit the read operation
+        let op = Op::read_fixed_at(&self.fd, buf, pos).unwrap();
+        op.read_fixed().await
     }
 
     /// Write a buffer into this file at the specified offset, returning how

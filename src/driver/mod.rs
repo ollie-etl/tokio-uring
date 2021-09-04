@@ -14,6 +14,8 @@ mod open;
 
 mod read;
 
+mod read_fixed;
+
 mod recv_from;
 
 mod register;
