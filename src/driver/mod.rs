@@ -19,7 +19,7 @@ mod read_fixed;
 mod recv_from;
 
 mod register;
-pub(crate) use register::{register_buffers, Buffers};
+pub(crate) use register::{register_buffers, unregister_buffers, Buffers};
 
 mod send_to;
 

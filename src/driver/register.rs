@@ -100,14 +100,31 @@ impl Drop for Buffers {
     }
 }
 
-pub(crate) fn register_buffers(buffers: Rc<RefCell<Buffers>>) -> io::Result<()> {
+pub(crate) fn register_buffers(buffers: &Rc<RefCell<Buffers>>) -> io::Result<()> {
     driver::CURRENT.with(|inner_rc| {
         let mut inner = inner_rc.borrow_mut();
         inner
             .uring
             .submitter()
             .register_buffers(buffers.borrow().iovecs())?;
-        inner.buffers = Some(buffers);
+        inner.buffers = Some(Rc::clone(buffers));
         Ok(())
+    })
+}
+
+pub(crate) fn unregister_buffers(buffers: &Rc<RefCell<Buffers>>) -> io::Result<()> {
+    driver::CURRENT.with(|inner_rc| {
+        let mut inner = inner_rc.borrow_mut();
+        if let Some(currently_registered) = &inner.buffers {
+            if Rc::ptr_eq(buffers, currently_registered) {
+                inner.uring.submitter().unregister_buffers()?;
+                inner.buffers = None;
+                return Ok(());
+            }
+        }
+        Err(io::Error::new(
+            io::ErrorKind::Other,
+            "not currently registered",
+        ))
     })
 }
