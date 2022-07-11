@@ -16,8 +16,10 @@ use crate::driver::{self, Buffers};
 
 use std::cell::RefCell;
 use std::io;
+use std::ops;
 use std::mem::ManuallyDrop;
 use std::rc::Rc;
+use std::slice;
 
 /// An indexed collection of I/O buffers pre-registered with the kernel.
 ///
@@ -180,5 +182,19 @@ unsafe impl IoBufMut for FixedBuf {
         if self.buf.len() < pos {
             self.buf.set_len(pos)
         }
+    }
+}
+
+impl ops::Deref for FixedBuf {
+    type Target = [u8];
+
+    fn deref(&self) -> &[u8] {
+        unsafe { slice::from_raw_parts(self.stable_ptr(), self.bytes_init()) }
+    }
+}
+
+impl ops::DerefMut for FixedBuf {
+    fn deref_mut(&mut self) -> &mut [u8] {
+        unsafe { slice::from_raw_parts_mut(self.stable_ptr() as *mut _, self.bytes_init()) }
     }
 }
