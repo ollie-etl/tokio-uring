@@ -74,7 +74,7 @@ impl Driver {
             // Use a kernel thread to perform submission queue polling, idling after 1s inactivity
             .setup_sqpoll(1000)
             .setup_sqpoll_cpu(2) // pin the worker thread to cpu 2
-            .build(256)?;
+            .build(4096)?;
 
         let inner = Rc::new(RefCell::new(Inner {
             ops: Ops::new(),
