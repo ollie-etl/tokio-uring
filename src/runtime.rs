@@ -101,4 +101,9 @@ impl Runtime {
                 })))
         })
     }
+
+    /// Get the parameters that were used to construct the uring instance.
+    pub fn parameters() -> io_uring::Parameters {
+        CURRENT.with(|x| x.borrow().uring.params().clone())
+    }
 }
