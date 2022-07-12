@@ -70,7 +70,11 @@ scoped_thread_local!(pub(crate) static CURRENT: Rc<RefCell<Inner>>);
 
 impl Driver {
     pub(crate) fn new() -> io::Result<Driver> {
-        let uring = IoUring::new(256)?;
+        let uring = IoUring::builder()
+            // Use a kernel thread to perform submission queue polling, idling after 1s inactivity
+            .setup_sqpoll(1000)
+            .setup_sqpoll_cpu(2) // pin the worker thread to cpu 2
+            .build(256)?;
 
         let inner = Rc::new(RefCell::new(Inner {
             ops: Ops::new(),
