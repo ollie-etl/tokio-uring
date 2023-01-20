@@ -5,7 +5,11 @@ pub(crate) use close::Close;
 
 mod connect;
 
+mod fallocate;
+
 mod fsync;
+
+mod mkdir_at;
 
 mod noop;
 pub(crate) use noop::NoOp;
@@ -26,11 +30,15 @@ mod send_to;
 
 mod send_zc;
 
+mod sendmsg_zc;
+
 mod shared_fd;
 pub(crate) use shared_fd::SharedFd;
 
 mod socket;
 pub(crate) use socket::Socket;
+
+mod statx;
 
 mod unlink_at;
 
